@@ -32,15 +32,19 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
           const ref = arg?.startsWith("r") ? Number(arg.slice(1)) : undefined;
           await h.registerUser(msg.from, Number.isFinite(ref) ? ref : undefined);
           const link = `${appUrl}${arg ? `?tgWebAppStartParam=${encodeURIComponent(arg)}` : ""}`;
-          await h.tg("sendMessage", {
+          const custom = (await h.setting('duck_emoji_enabled')) === 'true';
+          const emoji = (id: string, fallback: string) => custom ? `<tg-emoji emoji-id="${id}">${fallback}</tg-emoji>` : fallback;
+          const welcome = {
             chat_id: msg.chat.id, parse_mode: "HTML",
-            text: `<b>⛏ Welcome to NOT Miner, ${escape(msg.from.first_name || "friend")}!</b>\n\n<b>Mine Notcoin every day — right inside Telegram.</b>\n\n<b>▸ Start a session</b> with one tap\n<b>▸ Boost</b> with servers, tasks & games\n<b>▸ Invite friends</b> for +1 NOT each\n<b>▸ Withdraw</b> to your TON wallet\n\n🎁 <b>0.5 NOT welcome bonus is already in your balance.</b>`,
+            text: `<b>${emoji('5413694143601842851', '👋')} Welcome to NOT Miner, ${escape(msg.from.first_name || "friend")}!</b>\n\n${emoji('5386399931378440814', '😎')} <b>Mine NOT inside Telegram.</b>\n\nStart a 6-hour mining session with one ad.\nComplete tasks, play games and invite friends.\n\n${emoji('5395357957552609518', '🤩')} <b>Withdraw from 1.5 NOT.</b>\nOne-time activation: <b>0.1 TON</b>, community membership, and 1 friend or 25 ads. Wallet network fees are separate. Manual payout review.\n\nNew users receive <b>0.5 NOT</b>.`,
             reply_markup: { inline_keyboard: [
               [{ text: "⛏ Start mining", web_app: { url: link }, style: "success" }],
               [{ text: "🎯 Tasks", web_app: { url: `${appUrl}?tab=tasks` }, style: "primary" }, { text: "🎮 Games", web_app: { url: `${appUrl}?tab=games` }, style: "primary" }],
-              [{ text: "👥 Invite friends", switch_inline_query: "", style: "danger" }],
+              [{ text: "👥 Invite friends", url: `https://t.me/share/url?url=${encodeURIComponent(`https://t.me/${await h.setting('bot_username')}?start=r${msg.from.id}`)}`, style: "danger" }],
             ] },
-          });
+          };
+          const sent = await h.tg("sendMessage", welcome);
+          if (!sent.ok && custom) await h.tg('sendMessage', { ...welcome, text: welcome.text.replace(/<\/?tg-emoji[^>]*>/g, '') });
         } else if (text === "/101") {
           const role = await h.roleOf(msg.from.username);
           if (role) await h.tg("sendMessage", { chat_id: msg.chat.id, parse_mode: "HTML", text: `<b>🛠 Admin panel</b>\nRole: ${role === "admin" ? "Full admin" : "Task manager"}`, reply_markup: { inline_keyboard: [[{ text: "Open panel", web_app: { url: `${appUrl}/admin` }, style: "primary" }]] } });
@@ -51,4 +55,4 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
   },
 });
 
-function escape(s: string) { return s.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[c]!); }
+function escape(s: string) { return s.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[c] ?? c); }

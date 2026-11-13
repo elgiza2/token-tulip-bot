@@ -7,7 +7,9 @@ import { adWatched, bootstrap, checkPayment, claimMining, claimTask, createPayme
 import { initTelegram, haptic, showAd, openLink } from "@/lib/telegram";
 import { Glass, Pill, CoinIcon, fmt } from "@/components/app/ui";
 import { SERVER_LIST } from "@/lib/servers";
-import { GAME_COOLDOWN_SEC, GRAM_FEE, MIN_WITHDRAW, SESSION_HOURS, WITHDRAW_ADS_REQUIRED } from "@/lib/config";
+import { AD_TASK_REWARD, GAME_COOLDOWN_SEC, GRAM_FEE, MIN_WITHDRAW, SESSION_HOURS, WITHDRAW_ADS_REQUIRED } from "@/lib/config";
+import { connectWallet, sendTonPayment, tonWallet } from '@/lib/ton-wallet';
+import avatar from '@/assets/bot-avatar.jpg';
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -55,7 +57,7 @@ function App() {
     if (t && TABS.some((x) => x.id === t)) setTab(t);
   }, []);
 
-  if (err) return <Center><Glass className="p-6 text-center"><p className="text-lg font-bold">NOT Miner</p><p className="mt-2 text-muted-foreground">{err}</p></Glass></Center>;
+  if (err) return <Center><Glass className="p-6 text-center"><img src={avatar} alt="NOT Miner duck" width={1024} height={1024} className="mx-auto mb-4 h-28 w-28 rounded-full" /><p className="text-lg font-bold">NOT Miner</p><p className="mt-2 text-muted-foreground">{err}</p><Pill className="mt-4" onClick={() => openLink('https://t.me/iiocasinobot?startapp')}>Open in Telegram</Pill></Glass></Center>;
   if (!st) return <Center><div className="coin h-16 w-16 animate-spin-slow rounded-full" /></Center>;
 
   const p = { st, setSt, initData };
@@ -173,15 +175,24 @@ function usePay(p: P) {
   const check = useServerFn(checkPayment);
   const [pending, setPending] = useState<{ id: string; memo: string; amount: number; address: string } | null>(null);
   const [checking, setChecking] = useState(false);
+  const [sending, setSending] = useState(false);
   return {
     pending,
     checking,
+    sending,
     start: async (purpose: string) => {
       try {
         const r = await create({ data: { initData: p.initData, purpose } });
         setPending(r);
-        openLink(`https://app.tonkeeper.com/transfer/${r.address}?amount=${Math.round(r.amount * 1e9)}&text=${encodeURIComponent(r.memo)}`);
+        await connectWallet();
       } catch (e: any) { toast.error(e.message); }
+    },
+    send: async () => {
+      if (!pending || sending) return;
+      setSending(true);
+      try { if (await sendTonPayment(pending)) toast.success('Transfer submitted — check payment after confirmation.'); }
+      catch (e: any) { toast.error(e.message || 'Transfer cancelled'); }
+      finally { setSending(false); }
     },
     verify: async () => {
       if (!pending) return;
@@ -204,8 +215,9 @@ function PaySheet({ pay }: { pay: ReturnType<typeof usePay> }) {
     <div className="fixed inset-0 z-50 flex items-end bg-foreground/20 p-4" onClick={pay.cancel}>
       <Glass className="animate-pop mx-auto w-full max-w-md space-y-3 bg-popover p-5" >
         <div onClick={(e) => e.stopPropagation()} className="space-y-3">
-          <p className="text-lg font-black">Send {amount} GRAM (TON)</p>
+          <p className="text-lg font-black">Pay {amount} TON</p>
           <p className="text-sm text-muted-foreground">Include the comment exactly — it links the payment to your account.</p>
+          <Pill className="w-full" disabled={pay.sending} onClick={pay.send}><Wallet className="mr-2 inline h-4 w-4" />{pay.sending ? 'Confirm in wallet…' : 'Pay with TON Connect'}</Pill>
           <button onClick={() => copy(address)} className="flex w-full items-center justify-between rounded-2xl bg-secondary p-3 text-left text-xs"><span className="truncate font-mono">{address}</span><Copy className="ml-2 h-4 w-4 shrink-0" /></button>
           <button onClick={() => copy(memo)} className="flex w-full items-center justify-between rounded-2xl bg-secondary p-3 text-left text-sm"><span>Comment: <b className="font-mono">{memo}</b></span><Copy className="h-4 w-4" /></button>
           <Pill tone="success" className="w-full" disabled={pay.checking} onClick={pay.verify}>{pay.checking ? "Checking…" : "I've paid — check"}</Pill>
@@ -233,7 +245,7 @@ function ServersTab(p: P) {
               {s.ads > 0 && !owned && <p className="text-xs text-muted-foreground">{Math.min(p.st.user.ads_watched, s.ads)}/{s.ads} ads</p>}
             </div>
             {owned ? <span className="flex items-center gap-1 rounded-full bg-success/15 px-3 py-1.5 text-sm font-bold text-success"><Check className="h-4 w-4" />Active</span>
-              : s.priceTon > 0 ? <Pill className="h-10 px-4 text-sm" onClick={() => pay.start(`server:${s.id}`)}>{s.priceTon} GRAM</Pill>
+              : s.priceTon > 0 ? <Pill className="h-10 px-4 text-sm" onClick={() => pay.start(`server:${s.id}`)}>{s.priceTon} TON</Pill>
               : <Pill tone="accent" className="h-10 px-4 text-sm" disabled={ad.busy} onClick={ad.run}>Watch ad</Pill>}
           </Glass>
         );
@@ -263,7 +275,8 @@ function TasksTab(p: P) {
         </div>
         {p.st.friends.length > 0 && <div className="space-y-1 border-t border-border pt-2">{p.st.friends.slice(0, 5).map((f: any, i: number) => <p key={i} className="text-sm">{f.first_name || f.username}</p>)}</div>}
       </Glass>
-      <Pill tone="accent" className="w-full" disabled={ad.busy} onClick={ad.run}><Play className="mr-1 inline h-4 w-4" /> Watch an ad · {p.st.user.ads_watched} watched</Pill>
+      <Pill tone="accent" className="w-full" disabled={ad.busy} onClick={ad.run}><Play className="mr-1 inline h-4 w-4" /> Watch ad · +{AD_TASK_REWARD} NOT</Pill>
+      <p className="text-xs text-muted-foreground">Optional rewarded ads · {p.st.user.ads_watched} completed. Availability depends on the ad provider.</p>
       {p.st.tasks.map((t: any) => {
         const ready = t.kind === "link" ? opened[t.id] : t.kind === "checkin" ? true : t.progress >= t.target;
         return (
@@ -365,9 +378,20 @@ function WalletTab(p: P) {
   const [amount, setAmount] = useState("");
   const [wallet, setWallet] = useState("");
   const [joinOpened, setJoinOpened] = useState(false);
+  const [connected, setConnected] = useState(false);
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    let active = true;
+    tonWallet().then((ui) => {
+      if (!active) return;
+      const update = () => { const a = ui.account; setConnected(Boolean(a)); if (a) setWallet(a.address); };
+      update(); unsubscribe = ui.onStatusChange(update);
+    }).catch(() => {});
+    return () => { active = false; unsubscribe?.(); };
+  }, []);
   const activity = u.ref_count >= 1 || u.ads_watched >= WITHDRAW_ADS_REQUIRED;
   const steps = [
-    { t: `Pay ${GRAM_FEE} GRAM activation`, ok: u.paid_gram, action: <Pill className="h-9 px-3 text-sm" onClick={() => pay.start("gram")}>Pay</Pill> },
+    { t: `One-time withdrawal activation: ${GRAM_FEE} TON`, ok: u.paid_gram, action: <Pill className="h-9 px-3 text-sm" onClick={() => pay.start("gram")}>Pay</Pill> },
     { t: "Join our community", ok: u.joined_community, action: p.st.community ? (joinOpened ? <Pill tone="success" className="h-9 px-3 text-sm" onClick={async () => { try { p.setSt(await verify({ data: { initData: p.initData } })); } catch (e: any) { toast.error(e.message); } }}>Verify</Pill> : <Pill className="h-9 px-3 text-sm" onClick={() => { openLink(`https://t.me/${p.st.community.replace("@", "")}`); setJoinOpened(true); }}>Join</Pill>) : <span className="text-xs text-muted-foreground">Soon</span> },
     { t: `Invite 1 friend or watch ${WITHDRAW_ADS_REQUIRED} ads`, ok: activity, action: <span className="tabular text-xs font-bold text-muted-foreground">{Math.min(u.ads_watched, WITHDRAW_ADS_REQUIRED)}/{WITHDRAW_ADS_REQUIRED}</span> },
   ];
@@ -376,6 +400,7 @@ function WalletTab(p: P) {
     <div className="space-y-3">
       <h1 className="text-2xl font-black">Withdraw</h1>
       <Glass className="p-5 text-center"><p className="text-sm text-muted-foreground">Available</p><p className="tabular text-3xl font-black">{fmt(Number(u.balance), 4)} <span className="text-base">NOT</span></p><p className="text-xs text-muted-foreground">Minimum {MIN_WITHDRAW} NOT</p></Glass>
+      <p className="text-xs text-muted-foreground">About 37.5 active mining hours from zero at base speed; restart every {SESSION_HOURS} hours. Rewards can shorten this. Manual payouts, not guaranteed earnings. Wallet network fees are separate.</p>
       <Glass className="divide-y divide-border">
         {steps.map((s, i) => (
           <div key={i} className="flex items-center gap-3 p-4">
@@ -386,6 +411,7 @@ function WalletTab(p: P) {
         ))}
       </Glass>
       <Glass className="space-y-3 p-4">
+        <Pill tone="ghost" className="w-full" onClick={async () => { try { const ui = await tonWallet(); if (connected) await ui.disconnect(); else await connectWallet(); } catch (e: any) { toast.error(e.message); } }}><Wallet className="mr-2 inline h-4 w-4" />{connected ? 'Disconnect wallet' : 'Connect TON wallet'}</Pill>
         <input value={wallet} onChange={(e) => setWallet(e.target.value.trim())} placeholder="TON wallet address" className="h-12 w-full rounded-2xl bg-secondary px-4 text-sm outline-none" />
         <div className="flex gap-2">
           <input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" placeholder="Amount" className="h-12 flex-1 rounded-2xl bg-secondary px-4 text-sm outline-none" />

@@ -5,9 +5,10 @@ export const SUPER_ADMINS = ["eigiza", "torker"];
 export const AD_ZONE = "12255910";
 export const BASE_RATE = 0.04; // NOT per hour
 export const SESSION_HOURS = 6;
-export const MIN_WITHDRAW = 50;
+export const MIN_WITHDRAW = 1.5;
 export const WITHDRAW_ADS_REQUIRED = 25;
-export const GRAM_FEE = 1; // TON
+export const GRAM_FEE = 0.1; // TON; one-time withdrawal activation
+export const AD_TASK_REWARD = 0.01;
 export const GAME_COOLDOWN_SEC = 30;
 export const REF_BONUS = 1;
 

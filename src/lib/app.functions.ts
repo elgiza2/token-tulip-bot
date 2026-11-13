@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { GAME_COOLDOWN_SEC, GRAM_FEE, MIN_WITHDRAW, PAY_ADDRESS, SERVERS, WITHDRAW_ADS_REQUIRED } from "@/lib/config";
+import { AD_TASK_REWARD, GAME_COOLDOWN_SEC, GRAM_FEE, MIN_WITHDRAW, PAY_ADDRESS, SERVERS, WITHDRAW_ADS_REQUIRED } from "@/lib/config";
 
 const auth = z.object({ initData: z.string().min(10).max(4096) });
 const L = () => import("@/lib/server/tg");
@@ -57,6 +57,7 @@ export const adWatched = createServerFn({ method: "POST" })
     const { h, user, s } = await me(data.initData);
     const { data: u } = await s.from("notm_users").select("*").eq("id", user.id).single();
     const patch: Record<string, any> = { ads_watched: u.ads_watched + 1 };
+    if (data.purpose === "task") patch["balance"] = Number(u.balance) + AD_TASK_REWARD;
     if (data.purpose === "mine") {
       const rate = await h.rateFor(user.id);
       const mined = h.pendingMined(u.mining_started_at, rate);
@@ -64,7 +65,8 @@ export const adWatched = createServerFn({ method: "POST" })
       patch["mining_started_at"] = new Date().toISOString();
     }
     if (data.purpose === "server") {
-      const s1 = SERVERS[0]!;
+      const s1 = SERVERS[0];
+      if (!s1) throw new Error("Server unavailable");
       const { data: has } = await s.from("notm_user_servers").select("id").eq("user_id", user.id).eq("server_id", s1.id);
       if (!has?.length && u.ads_watched + 1 >= s1.ads) await s.from("notm_user_servers").insert({ user_id: user.id, server_id: s1.id });
     }
@@ -167,7 +169,7 @@ export const requestWithdraw = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { h, user, s } = await me(data.initData);
     const { data: u } = await s.from("notm_users").select("*").eq("id", user.id).single();
-    if (!u.paid_gram) throw new Error("Pay the 1 GRAM activation first");
+    if (!u.paid_gram) throw new Error(`Pay the ${GRAM_FEE} TON withdrawal activation first`);
     if (!u.joined_community) throw new Error("Join the community first");
     if (u.ref_count < 1 && u.ads_watched < WITHDRAW_ADS_REQUIRED) throw new Error("Invite 1 friend or watch 25 ads");
     if (data.amount < MIN_WITHDRAW) throw new Error(`Minimum is ${MIN_WITHDRAW} NOT`);

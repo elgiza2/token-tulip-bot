@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ApiPublicCronRouteImport } from './routes/api/public/cron'
 import { Route as ApiPublicSetupRouteImport } from './routes/api/public/setup'
+import { Route as ApiPublicTonconnectManifestRouteImport } from './routes/api/public/tonconnect-manifest'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,12 @@ const ApiPublicSetupRoute = ApiPublicSetupRouteImport.update({
   path: '/api/public/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTonconnectManifestRoute =
+  ApiPublicTonconnectManifestRouteImport.update({
+    id: '/api/public/tonconnect-manifest',
+    path: '/api/public/tonconnect-manifest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicTelegramWebhookRoute =
   ApiPublicTelegramWebhookRouteImport.update({
     id: '/api/public/telegram/webhook',
@@ -47,6 +54,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/api/public/cron': typeof ApiPublicCronRoute
   '/api/public/setup': typeof ApiPublicSetupRoute
+  '/api/public/tonconnect-manifest': typeof ApiPublicTonconnectManifestRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -54,6 +62,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/api/public/cron': typeof ApiPublicCronRoute
   '/api/public/setup': typeof ApiPublicSetupRoute
+  '/api/public/tonconnect-manifest': typeof ApiPublicTonconnectManifestRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRoutesById {
@@ -62,6 +71,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/api/public/cron': typeof ApiPublicCronRoute
   '/api/public/setup': typeof ApiPublicSetupRoute
+  '/api/public/tonconnect-manifest': typeof ApiPublicTonconnectManifestRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRouteTypes {
@@ -71,6 +81,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api/public/cron'
     | '/api/public/setup'
+    | '/api/public/tonconnect-manifest'
     | '/api/public/telegram/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -78,6 +89,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api/public/cron'
     | '/api/public/setup'
+    | '/api/public/tonconnect-manifest'
     | '/api/public/telegram/webhook'
   id:
     | '__root__'
@@ -85,6 +97,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/api/public/cron'
     | '/api/public/setup'
+    | '/api/public/tonconnect-manifest'
     | '/api/public/telegram/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -93,6 +106,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ApiPublicCronRoute: typeof ApiPublicCronRoute
   ApiPublicSetupRoute: typeof ApiPublicSetupRoute
+  ApiPublicTonconnectManifestRoute: typeof ApiPublicTonconnectManifestRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
 }
 
@@ -126,6 +140,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/tonconnect-manifest': {
+      id: '/api/public/tonconnect-manifest'
+      path: '/api/public/tonconnect-manifest'
+      fullPath: '/api/public/tonconnect-manifest'
+      preLoaderRoute: typeof ApiPublicTonconnectManifestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/telegram/webhook': {
       id: '/api/public/telegram/webhook'
       path: '/api/public/telegram/webhook'
@@ -141,6 +162,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ApiPublicCronRoute: ApiPublicCronRoute,
   ApiPublicSetupRoute: ApiPublicSetupRoute,
+  ApiPublicTonconnectManifestRoute: ApiPublicTonconnectManifestRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
 }
 export const routeTree = rootRouteImport

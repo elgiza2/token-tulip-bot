@@ -33,3 +33,4 @@ use the editor.
 - All app tables use the `notm_` prefix (the database is shared with other apps); RLS on with no policies, accessed only server-side via service role after verifying Telegram initData.
 - Telegram identity comes from `verifyInitData` in `src/lib/server/tg.ts`; every server function takes `initData`. Server helpers are imported dynamically inside handlers.
 - Scheduled broadcasts run through `/api/public/cron?key=<notm_settings.cron_key>` called by an external scheduler; `/api/public/setup` re-registers the bot webhook to a given origin.
+- TON Connect loads only inside browser actions and uses a same-origin public manifest; transfers include the server-generated payment memo so receipt verification stays server-side.
