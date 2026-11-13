@@ -1991,6 +1991,296 @@ export type Database = {
         }
         Relationships: []
       }
+      notm_gifts: {
+        Row: {
+          amount: number
+          claimed: boolean
+          created_at: string
+          id: string
+          user_id: number
+        }
+        Insert: {
+          amount: number
+          claimed?: boolean
+          created_at?: string
+          id?: string
+          user_id: number
+        }
+        Update: {
+          amount?: number
+          claimed?: boolean
+          created_at?: string
+          id?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notm_gifts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "notm_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notm_payments: {
+        Row: {
+          amount_ton: number
+          created_at: string
+          id: string
+          memo: string
+          purpose: string
+          status: string
+          tx_hash: string | null
+          user_id: number
+        }
+        Insert: {
+          amount_ton: number
+          created_at?: string
+          id?: string
+          memo: string
+          purpose: string
+          status?: string
+          tx_hash?: string | null
+          user_id: number
+        }
+        Update: {
+          amount_ton?: number
+          created_at?: string
+          id?: string
+          memo?: string
+          purpose?: string
+          status?: string
+          tx_hash?: string | null
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notm_payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "notm_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notm_settings: {
+        Row: {
+          key: string
+          value: string
+        }
+        Insert: {
+          key: string
+          value: string
+        }
+        Update: {
+          key?: string
+          value?: string
+        }
+        Relationships: []
+      }
+      notm_task_done: {
+        Row: {
+          created_at: string
+          task_id: string
+          user_id: number
+        }
+        Insert: {
+          created_at?: string
+          task_id: string
+          user_id: number
+        }
+        Update: {
+          created_at?: string
+          task_id?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notm_task_done_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "notm_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notm_task_done_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "notm_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notm_task_managers: {
+        Row: {
+          created_at: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          username?: string
+        }
+        Relationships: []
+      }
+      notm_tasks: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          kind: string
+          reward: number
+          sort: number
+          target: number
+          title: string
+          url: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          kind?: string
+          reward?: number
+          sort?: number
+          target?: number
+          title: string
+          url?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          kind?: string
+          reward?: number
+          sort?: number
+          target?: number
+          title?: string
+          url?: string | null
+        }
+        Relationships: []
+      }
+      notm_user_servers: {
+        Row: {
+          created_at: string
+          id: string
+          server_id: string
+          user_id: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          server_id: string
+          user_id: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          server_id?: string
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notm_user_servers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "notm_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notm_users: {
+        Row: {
+          ads_watched: number
+          balance: number
+          blocked: boolean
+          created_at: string
+          first_name: string | null
+          id: number
+          joined_community: boolean
+          last_checkin: string | null
+          last_game_at: string | null
+          mining_started_at: string | null
+          paid_gram: boolean
+          photo_url: string | null
+          ref_count: number
+          referrer_id: number | null
+          username: string | null
+        }
+        Insert: {
+          ads_watched?: number
+          balance?: number
+          blocked?: boolean
+          created_at?: string
+          first_name?: string | null
+          id: number
+          joined_community?: boolean
+          last_checkin?: string | null
+          last_game_at?: string | null
+          mining_started_at?: string | null
+          paid_gram?: boolean
+          photo_url?: string | null
+          ref_count?: number
+          referrer_id?: number | null
+          username?: string | null
+        }
+        Update: {
+          ads_watched?: number
+          balance?: number
+          blocked?: boolean
+          created_at?: string
+          first_name?: string | null
+          id?: number
+          joined_community?: boolean
+          last_checkin?: string | null
+          last_game_at?: string | null
+          mining_started_at?: string | null
+          paid_gram?: boolean
+          photo_url?: string | null
+          ref_count?: number
+          referrer_id?: number | null
+          username?: string | null
+        }
+        Relationships: []
+      }
+      notm_withdrawals: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          status: string
+          user_id: number
+          wallet: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          status?: string
+          user_id: number
+          wallet: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          status?: string
+          user_id?: number
+          wallet?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notm_withdrawals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "notm_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orai_ad_views: {
         Row: {
           consumed: boolean
