@@ -28,3 +28,8 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- All app tables use the `notm_` prefix (the database is shared with other apps); RLS on with no policies, accessed only server-side via service role after verifying Telegram initData.
+- Telegram identity comes from `verifyInitData` in `src/lib/server/tg.ts`; every server function takes `initData`. Server helpers are imported dynamically inside handlers.
+- Scheduled broadcasts run through `/api/public/cron?key=<notm_settings.cron_key>` called by an external scheduler; `/api/public/setup` re-registers the bot webhook to a given origin.
