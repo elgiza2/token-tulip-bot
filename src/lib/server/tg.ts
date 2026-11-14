@@ -1,5 +1,5 @@
 // Server-only helpers. Import dynamically inside handlers only.
-import { BASE_RATE, SERVERS, SESSION_HOURS, SUPER_ADMINS } from "@/lib/config";
+import { BASE_RATE, REF_BONUS, SERVERS, SESSION_HOURS, SUPER_ADMINS } from "@/lib/config";
 
 export async function db() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -121,8 +121,8 @@ export async function registerUser(u: TgUser, ref?: number | undefined) {
     const { data: r } = await s.from("notm_users").select("ref_count").eq("id", referrer).maybeSingle();
     if (r) {
       await s.from("notm_users").update({ ref_count: (r.ref_count ?? 0) + 1 }).eq("id", referrer);
-      await addBalance(referrer, 1);
-      await tg("sendMessage", { chat_id: referrer, text: `🎉 <b>New friend joined!</b>\n+1 NOT added to your balance.`, parse_mode: "HTML" });
+      await addBalance(referrer, REF_BONUS);
+      await tg("sendMessage", { chat_id: referrer, text: `🎉 <b>New friend joined!</b>\n+${REF_BONUS} NOT added to your balance.`, parse_mode: "HTML" });
     }
   }
   return true;

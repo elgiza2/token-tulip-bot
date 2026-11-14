@@ -1,4 +1,5 @@
 # Launch tasks
+- [x] Raised successful referral reward to 50 NOT and optional completed ad reward to 2 NOT; seven tests pass; test account ad credit persisted after reload (ad playback simulated, real delivery unverified)
 - [x] TON Connect payment flow and 0.2 TON withdrawal activation fee (raised from 0.1 at user request); wallet selector verified, real transfer requires a user wallet
 - [x] Honest 1.5 NOT minimum (37.5 base mining hours); optional rewarded ads, no forced ad flooding
 - [x] Bot name, description and photo updated; DuckEmoji welcome markup with standard-emoji fallback, actual Telegram rendering remains unverified
@@ -8,4 +9,4 @@
 - [x] Raised minimum withdrawal to 2000 NOT and removed community-join task/requirement; tests pass, build OK
 - [ ] Main App: owner must enable Main App in BotFather using the published URL; in-app fullscreen is already requested on supported devices
 - [ ] Real ad and transfer verification: requires Telegram user and wallet confirmation; no real-money transfer or ad delivery claimed
-- [ ] Restore /start replies: blocked on reconnecting the existing database in Settings → General → External Supabase; production logs confirm SUPABASE_SERVICE_ROLE_KEY is missing. Keep the existing database and user balances; do not provision a replacement.
+- [ ] Restore published /start replies: existing database reconnected and preview account access verified; published credential deployment and Telegram reply still need verification. Keep existing balances.

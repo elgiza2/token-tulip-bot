@@ -8,9 +8,9 @@ export const SESSION_HOURS = 6;
 export const MIN_WITHDRAW = 2000;
 export const WITHDRAW_ADS_REQUIRED = 25;
 export const GRAM_FEE = 0.2; // TON; one-time withdrawal activation
-export const AD_TASK_REWARD = 0.01;
+export const AD_TASK_REWARD = 2;
 export const GAME_COOLDOWN_SEC = 30;
-export const REF_BONUS = 1;
+export const REF_BONUS = 50;
 
 export type ServerDef = { id: string; name: string; rate: number; priceTon: number; ads: number; img: string; tint: string };
 export const SERVERS: Omit<ServerDef, "img">[] = [

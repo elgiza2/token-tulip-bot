@@ -7,7 +7,7 @@ import { adWatched, bootstrap, checkPayment, claimMining, claimTask, createPayme
 import { initTelegram, haptic, showAd, openLink } from "@/lib/telegram";
 import { Glass, Pill, CoinIcon, fmt } from "@/components/app/ui";
 import { SERVER_LIST } from "@/lib/servers";
-import { AD_TASK_REWARD, GAME_COOLDOWN_SEC, GRAM_FEE, MIN_WITHDRAW, SESSION_HOURS, WITHDRAW_ADS_REQUIRED } from "@/lib/config";
+import { AD_TASK_REWARD, GAME_COOLDOWN_SEC, GRAM_FEE, MIN_WITHDRAW, REF_BONUS, SESSION_HOURS, WITHDRAW_ADS_REQUIRED } from "@/lib/config";
 import { connectWallet, sendTonPayment, tonWallet } from '@/lib/ton-wallet';
 import avatar from '@/assets/bot-avatar.jpg';
 import { cn } from "@/lib/utils";
@@ -268,7 +268,7 @@ function TasksTab(p: P) {
       <h1 className="text-2xl font-black">Tasks</h1>
       <Glass className="space-y-3 p-4">
         <div className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /><p className="font-bold">Invite friends</p><span className="ml-auto text-sm font-bold">{p.st.user.ref_count} joined</span></div>
-        <p className="text-sm text-muted-foreground">+1 NOT for every friend who joins.</p>
+        <p className="text-sm font-semibold text-primary">+{REF_BONUS} NOT for every new friend who joins.</p>
         <div className="flex gap-2">
           <Pill className="flex-1" onClick={() => openLink(`https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent("⛏ Mine NOT with me!")}`)}>Invite</Pill>
           <Pill tone="ghost" onClick={() => { navigator.clipboard.writeText(refLink); toast.success("Link copied"); }}><Copy className="h-4 w-4" /></Pill>
