@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Pickaxe, Server, ListChecks, Gamepad2, Wallet, Check, Copy, Users, Play, Sparkles, Lock, ChevronRight } from "lucide-react";
-import { adWatched, bootstrap, checkPayment, claimMining, claimTask, createPayment, gameReward, requestWithdraw, verifyCommunity, type AppState } from "@/lib/app.functions";
+import { adWatched, bootstrap, checkPayment, claimMining, claimTask, createPayment, gameReward, requestWithdraw, type AppState } from "@/lib/app.functions";
 import { initTelegram, haptic, showAd, openLink } from "@/lib/telegram";
 import { Glass, Pill, CoinIcon, fmt } from "@/components/app/ui";
 import { SERVER_LIST } from "@/lib/servers";
@@ -373,11 +373,9 @@ function WheelGame({ onEnd }: { onEnd: (score: number) => void }) {
 function WalletTab(p: P) {
   const u = p.st.user;
   const pay = usePay(p);
-  const verify = useServerFn(verifyCommunity);
   const withdraw = useServerFn(requestWithdraw);
   const [amount, setAmount] = useState("");
   const [wallet, setWallet] = useState("");
-  const [joinOpened, setJoinOpened] = useState(false);
   const [connected, setConnected] = useState(false);
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -392,7 +390,6 @@ function WalletTab(p: P) {
   const activity = u.ref_count >= 1 || u.ads_watched >= WITHDRAW_ADS_REQUIRED;
   const steps = [
     { t: `One-time withdrawal activation: ${GRAM_FEE} TON`, ok: u.paid_gram, action: <Pill className="h-9 px-3 text-sm" onClick={() => pay.start("gram")}>Pay</Pill> },
-    { t: "Join our community", ok: u.joined_community, action: p.st.community ? (joinOpened ? <Pill tone="success" className="h-9 px-3 text-sm" onClick={async () => { try { p.setSt(await verify({ data: { initData: p.initData } })); } catch (e: any) { toast.error(e.message); } }}>Verify</Pill> : <Pill className="h-9 px-3 text-sm" onClick={() => { openLink(`https://t.me/${p.st.community.replace("@", "")}`); setJoinOpened(true); }}>Join</Pill>) : <span className="text-xs text-muted-foreground">Soon</span> },
     { t: `Invite 1 friend or watch ${WITHDRAW_ADS_REQUIRED} ads`, ok: activity, action: <span className="tabular text-xs font-bold text-muted-foreground">{Math.min(u.ads_watched, WITHDRAW_ADS_REQUIRED)}/{WITHDRAW_ADS_REQUIRED}</span> },
   ];
   const ready = steps.every((s) => s.ok);
@@ -400,7 +397,7 @@ function WalletTab(p: P) {
     <div className="space-y-3">
       <h1 className="text-2xl font-black">Withdraw</h1>
       <Glass className="p-5 text-center"><p className="text-sm text-muted-foreground">Available</p><p className="tabular text-3xl font-black">{fmt(Number(u.balance), 4)} <span className="text-base">NOT</span></p><p className="text-xs text-muted-foreground">Minimum {MIN_WITHDRAW} NOT</p></Glass>
-      <p className="text-xs text-muted-foreground">About 37.5 active mining hours from zero at base speed; restart every {SESSION_HOURS} hours. Rewards can shorten this. Manual payouts, not guaranteed earnings. Wallet network fees are separate.</p>
+      <p className="text-xs text-muted-foreground">Minimum {MIN_WITHDRAW} NOT; faster servers, tasks, games and referrals shorten the time a lot. Restart mining every {SESSION_HOURS} hours. Rewards can shorten this. Manual payouts, not guaranteed earnings. Wallet network fees are separate.</p>
       <Glass className="divide-y divide-border">
         {steps.map((s, i) => (
           <div key={i} className="flex items-center gap-3 p-4">

@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
           const emoji = (id: string, fallback: string) => custom ? `<tg-emoji emoji-id="${id}">${fallback}</tg-emoji>` : fallback;
           const welcome = {
             chat_id: msg.chat.id, parse_mode: "HTML",
-            text: `<b>${emoji('5413694143601842851', '👋')} Welcome to NOT Miner, ${escape(msg.from.first_name || "friend")}!</b>\n\n${emoji('5386399931378440814', '😎')} <b>Mine NOT inside Telegram.</b>\n\nStart a 6-hour mining session with one ad.\nComplete tasks, play games and invite friends.\n\n${emoji('5395357957552609518', '🤩')} <b>Withdraw from 1.5 NOT.</b>\nOne-time activation: <b>0.1 TON</b>, community membership, and 1 friend or 25 ads. Wallet network fees are separate. Manual payout review.\n\nNew users receive <b>0.5 NOT</b>.`,
+            text: `<b>${emoji('5413694143601842851', '👋')} Welcome to NOT Miner, ${escape(msg.from.first_name || "friend")}!</b>\n\n${emoji('5386399931378440814', '😎')} <b>Mine NOT inside Telegram.</b>\n\nStart a 6-hour mining session with one ad.\nComplete tasks, play games and invite friends.\n\n${emoji('5395357957552609518', '🤩')} <b>Withdraw from 2000 NOT.</b>\nOne-time activation: <b>0.1 TON</b>, plus 1 friend or 25 ads. Wallet network fees are separate. Manual payout review.\n\nNew users receive <b>0.5 NOT</b>.`,
             reply_markup: { inline_keyboard: [
               [{ text: "⛏ Start mining", web_app: { url: link }, style: "success" }],
               [{ text: "🎯 Tasks", web_app: { url: `${appUrl}?tab=tasks` }, style: "primary" }, { text: "🎮 Games", web_app: { url: `${appUrl}?tab=games` }, style: "primary" }],

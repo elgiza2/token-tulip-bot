@@ -35,7 +35,6 @@ async function state(initData: string) {
     })),
     friends: friends ?? [],
     withdrawals: wds ?? [],
-    community: await h.setting("community"),
     bot: await h.setting("bot_username"),
     role: await h.roleOf(user.username),
   };
@@ -152,25 +151,12 @@ export const checkPayment = createServerFn({ method: "POST" })
     return { paid: true, state: await state(data.initData) };
   });
 
-export const verifyCommunity = createServerFn({ method: "POST" })
-  .inputValidator((d) => auth.parse(d))
-  .handler(async ({ data }) => {
-    const { h, user, s } = await me(data.initData);
-    const community = await h.setting("community");
-    if (!community) throw new Error("Community is not open yet");
-    const r = await h.tg("getChatMember", { chat_id: community, user_id: user.id });
-    if (!["member", "administrator", "creator"].includes(r?.result?.status)) throw new Error("Join the community first");
-    await s.from("notm_users").update({ joined_community: true }).eq("id", user.id);
-    return state(data.initData);
-  });
-
 export const requestWithdraw = createServerFn({ method: "POST" })
   .inputValidator((d) => auth.extend({ amount: z.number().positive().max(1e7), wallet: z.string().min(40).max(70) }).parse(d))
   .handler(async ({ data }) => {
     const { h, user, s } = await me(data.initData);
     const { data: u } = await s.from("notm_users").select("*").eq("id", user.id).single();
     if (!u.paid_gram) throw new Error(`Pay the ${GRAM_FEE} TON withdrawal activation first`);
-    if (!u.joined_community) throw new Error("Join the community first");
     if (u.ref_count < 1 && u.ads_watched < WITHDRAW_ADS_REQUIRED) throw new Error("Invite 1 friend or watch 25 ads");
     if (data.amount < MIN_WITHDRAW) throw new Error(`Minimum is ${MIN_WITHDRAW} NOT`);
     if (data.amount > Number(u.balance)) throw new Error("Not enough balance");
