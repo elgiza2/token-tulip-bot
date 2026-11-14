@@ -8,3 +8,4 @@
 - [x] Raised minimum withdrawal to 2000 NOT and removed community-join task/requirement; tests pass, build OK
 - [ ] Main App: owner must enable Main App in BotFather using the published URL; in-app fullscreen is already requested on supported devices
 - [ ] Real ad and transfer verification: requires Telegram user and wallet confirmation; no real-money transfer or ad delivery claimed
+- [ ] Restore /start replies: blocked on reconnecting the existing database in Settings → General → External Supabase; production logs confirm SUPABASE_SERVICE_ROLE_KEY is missing. Keep the existing database and user balances; do not provision a replacement.
